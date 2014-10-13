@@ -63,7 +63,6 @@ boolean PubSubClient::connect(char *id, char* willTopic, uint8_t willQos, uint8_
 
 boolean PubSubClient::connect(char *id, char *user, char *pass, char* willTopic, uint8_t willQos, uint8_t willRetain, char* willMessage) {
    if (!connected()) {
-      Serial.println("!connected()");
       int result = 0;
       
       if (domain != NULL) {
@@ -71,7 +70,6 @@ boolean PubSubClient::connect(char *id, char *user, char *pass, char* willTopic,
       } else {
         result = _client->connect(this->ip, this->port);
       }
-      Serial.println(result);
       
       if (result) {
          nextMsgId = 1;
@@ -212,20 +210,17 @@ boolean PubSubClient::loop() {
          }
       }
       if (_client->available()) {
-         Serial.println("client->available");
          uint8_t llen;
          uint16_t len = readPacket(&llen);
          uint16_t msgId = 0;
          uint8_t *payload;
-         Serial.println(len);
+
          if (len > 0) {
             lastInActivity = t;
             uint8_t type = buffer[0]&0xF0;
-            Serial.println(type);
-            Serial.println(MQTTPUBLISH);
+
             if (type == MQTTPUBLISH) {
                if (callback) {
-                  Serial.println("callback");
                   uint16_t tl = (buffer[llen+1]<<8)+buffer[llen+2];
                   char topic[tl+1];
                   for (uint16_t i=0;i<tl;i++) {
@@ -248,7 +243,6 @@ boolean PubSubClient::loop() {
 
                   } else {
                     payload = buffer+llen+3+tl;
-                    Serial.println("call callback");
                     callback(topic,payload,len-llen-3-tl);
                   }
                }
@@ -429,7 +423,6 @@ boolean PubSubClient::connected() {
 
    boolean rc;
    if (_client == NULL ) {
-      Serial.println("_client == NULL");
       rc = false;
    } else {
       rc = (int)_client->connected();
